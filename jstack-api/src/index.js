@@ -4,12 +4,27 @@ const routes = require('./routes')
 
 const server = http.createServer((request, response) => {
     const parsedUrl = new URL(`http://localhost:3000${request.url}`)
+    let { pathname } = parsedUrl
+    let id = null
+    const splittedEndpoint = pathname.split('/').filter(Boolean)
+    if (splittedEndpoint.length > 1) {
+        pathname = `/${splittedEndpoint[0]}:id`
+        id = splittedEndpoint[1]
+    }
+
     const route = routes.find((routeObject) => (
-        routeObject.endpoint === parsedUrl.pathname && routeObject.method === request.method
+        routeObject.endpoint === pathname && routeObject.method === request.method
     ))
 
     if (route) {
         request.query = Object.fromEntries(parsedUrl.searchParams)
+        request.params = { id }
+
+        response.send = (statusCode, body) => {
+            response.writeHead(statusCode, { 'Content-Type': 'application/json' })
+            response.end(JSON.stringify(body))
+        }
+
         route.handler(request, response)
     } else {
         response.writeHead(404, { 'Content-Type': 'text/html' })
