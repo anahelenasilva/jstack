@@ -1,18 +1,19 @@
 const http = require('http')
-const UserController = require('./controllers/UserController')
+const { URL } = require('url')
 const routes = require('./routes')
 
 const server = http.createServer((request, response) => {
-
+    const parsedUrl = new URL(`http://localhost:3000${request.url}`)
     const route = routes.find((routeObject) => (
-        routeObject.endpoint === request.url && routeObject.method === request.method
+        routeObject.endpoint === parsedUrl.pathname && routeObject.method === request.method
     ))
 
     if (route) {
+        request.query = Object.fromEntries(parsedUrl.searchParams)
         route.handler(request, response)
     } else {
         response.writeHead(404, { 'Content-Type': 'text/html' })
-        response.end(`Cannot ${request.method} ${request.url}`)
+        response.end(`Cannot ${request.method} ${parsedUrl.pathname}`)
     }
 })
 
