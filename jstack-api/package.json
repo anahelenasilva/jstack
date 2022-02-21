@@ -5,6 +5,9 @@
   "main": "src/index.js",
   "author": "Ana Helena",
   "license": "MIT",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
   "dependencies": {
     "express": "^4.17.3"
   },
